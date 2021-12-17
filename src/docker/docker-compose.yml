@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+
+  master:
+    image: postgres
+    container_name: master 
+    restart: always
+    volumes:
+      - /data/master:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: danylo
+    networks:
+        - database_net
+
+  slave:
+    image: postgres
+    container_name: slave
+    restart: always
+    volumes:
+      - /data/slave/:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: danylo
+    networks:
+        - database_net
+
+networks:
+  database_net:
+    driver: bridge
