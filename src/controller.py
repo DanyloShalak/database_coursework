@@ -18,6 +18,7 @@ class Controller:
 
     def __show_price_history(self, product_name):
         price_history = self.__repository.get_product_price_history(product_name)
+        print(price_history)
         plot_price_history(price_history, product_name)
     
 
@@ -31,7 +32,7 @@ class Controller:
         if len(price_history) < 90:
             raise Exception(f'Not enough record about product "{product_name}"')
         predicted_price = get_predicted_price(price_history)
-        print(f"Predicteg price for {product_name} is --> {predicted_price}")
+        print(f"Predicted price for {product_name} is --> {predicted_price} USD")
 
 
     def __generate_products(self, product_count):

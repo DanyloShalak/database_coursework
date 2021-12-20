@@ -48,7 +48,6 @@ class Repository:
         price_history = cursor.fetchall()
         cursor.close()
         price_history  = pd.DataFrame(price_history)
-        print(price_history)
         price_history = price_history.sort_values('price_date')
         price_history = price_history.set_index('price_date')
         return price_history
@@ -64,3 +63,47 @@ class Repository:
         cursor.execute("""insert into prices(price_date, price, product_id, shop_id)
                         values(%s, %s, %s, %s)""", tuple(record))
         cursor.close()
+
+
+
+    def __get_master_string_connection(self):
+        string_connection = 'dbname=cw_database user=postgres password=danylo host=172.22.0.3'
+        return string_connection
+
+    def __get_slave_string_connection(self):
+        string_connection = 'dbname=cw_database user=postgres password=danylo host=172.22.0.2'
+        return string_connection
+
+    def __check_master_connection(self):
+        try:
+            connection =  ps.connect(self.__get_master_string_connection())
+            return True
+        except Exception:
+            return False
+
+
+    def __check_slave_connection(self):
+        try:
+            connection =  ps.connect(self.__get_slave_string_connection())
+            return True
+        except Exception:
+            return False
+
+
+    def connect(self):
+        master_connection = self.__check_master_connection()
+        slave_connection = self.__check_slave_connection()
+
+        if master_connection == False:
+            self.__master_connection = ps.connect(self.__get_slave_string_connection())
+            self.__slave_connection = ps.connect(self.__get_slave_string_connection())
+            print('Working on slave server')
+        
+        if slave_connection == False:
+            self.__master_connection = ps.connect(self.__get_master_string_connection())
+            self.__slave_connection = ps.connect(self.__get_master_string_connection())
+            print('Working on master server')
+        
+        if master_connection == False and slave_connection == False:
+            print('Can not connect to any server')
+            exit()
